@@ -6,13 +6,6 @@ def predict_model(model, X_test):
     prediction = model.predict(X_test)
     return prediction
 
-'''
-    When training an SVM with the Radial Basis Function (RBF) kernel, two parameters must be considered: C and gamma. 
-    The parameter C, common to all SVM kernels, trades off misclassification of training examples against simplicity of the decision surface. 
-    A low C makes the decision surface smooth, while a high C aims at classifying all training examples correctly. gamma defines how much influence a single training example has. 
-    The larger gamma is, the closer other examples must be to be affected.
-''' 
-
 max_iterations = 5000
 
 #

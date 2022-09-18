@@ -3,7 +3,7 @@ metrics_list = [
     'precision',
     'recall',
     'accuracy',
-    'f1' # f1 option for cross_val_score for binary data
+    'f1' 
 ]
 
 def print_cv_scores(model, X, y, cross_validator):
@@ -25,7 +25,7 @@ def print_results_from_matrix(name, matrix):
     Recall = (TP * 1.0) / (TP + FN)
     Accuracy = (TP + TN) * 1.0 /  (TP + TN + FP + FN)
     F_Score = 2*((Precision*Recall)/(Precision+Recall))
-    print ("%s\t\t%.2f\t\t\t%.2f\t\t\t%.2f\t\t\t%.2f"%(name,Precision,Recall, Accuracy,F_Score, ))
+    print ("%s\t\t%.2f\t\t\t%.2f\t\t\t%.2f\t\t\t%.2f"%(name,Precision,Recall, Accuracy,F_Score))
 
 
 

@@ -1,9 +1,9 @@
 import random
 import pandas as pd
 
-normal_train_requests = '/Users/jan/Documents/GitHub/ma-thesis_cs20m019/datasets/normal_train_request.txt'
-normal_test_requests = '/Users/jan/Documents/GitHub/ma-thesis_cs20m019/datasets/normal_test_request.txt'
-anomalous_test_requests = '/Users/jan/Documents/GitHub/ma-thesis_cs20m019/datasets/anomalous_test_request.txt'
+normal_train_requests = '/datasets/normal_train_request.txt'
+normal_test_requests = '/datasets/normal_test_request.txt'
+anomalous_test_requests = '/datasets/anomalous_test_request.txt'
 
 '''
 dataframe helper methods
@@ -19,6 +19,9 @@ def assign_label_to_dfcolumn_label(dataframe, label):
     return dataframe
 
 def get_random_sample(filename, n_samples):
+    import os
+    current_dir = os.path.dirname(__file__)
+    filename = current_dir + filename
     with open(filename) as f:
         r_sample = f.read().splitlines()
     r_sample = random.sample(r_sample, n_samples)
@@ -69,10 +72,10 @@ def get_hash_vectorizer(analyzer, ngram):
     hash_vectorizer = HashingVectorizer(analyzer=analyzer,ngram_range=ngram, n_features=max_features)
     return hash_vectorizer
 
-def get_tfid_vectorizer(analyzer, ngram):
+def get_tfidf_vectorizer(analyzer, ngram):
     from sklearn.feature_extraction.text import TfidfVectorizer
-    tfid_vectorizer = TfidfVectorizer(analyzer=analyzer, ngram_range=ngram, min_df=min_df, max_df=max_df, max_features=max_features)
-    return tfid_vectorizer
+    tfidf_vectorizer = TfidfVectorizer(analyzer=analyzer, ngram_range=ngram, min_df=min_df, max_df=max_df, max_features=max_features)
+    return tfidf_vectorizer
 
 # Creates a sparse matrix from a document by providing different vectorize options of sklean
 def vectorize_document(vec_option, analyzer, ngram, document):
@@ -81,8 +84,8 @@ def vectorize_document(vec_option, analyzer, ngram, document):
         vectorizer = get_count_vectorizer(analyzer, ngram)
     elif vec_option == 'hash':
         vectorizer = get_hash_vectorizer(analyzer, ngram)
-    elif vec_option == 'tfid':
-        vectorizer = get_tfid_vectorizer(analyzer, ngram)
+    elif vec_option == 'tfidf':
+        vectorizer = get_tfidf_vectorizer(analyzer, ngram)
     else:
         print('Unsupported vectorize option: [', vec_option, ']')
         exit()

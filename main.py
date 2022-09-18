@@ -9,8 +9,6 @@ from time import process_time
 t_size = 0.2
 r_state = 4
 
-# Number of records that is randomly taken from the CSIC2010 dataset
-dataframe_size = 1000
 
 # Vectorize parameters
 analyzer = 'char'
@@ -39,8 +37,8 @@ def run_performance_evaluation(sklearn_vectorizer, X, y):
 
     if sklearn_vectorizer == 'count':
         print('Running performance evaluation for CountVectorizer')
-    elif sklearn_vectorizer == 'tfid':
-        print('Running performance evaluation for tfid_Vectorizer')
+    elif sklearn_vectorizer == 'tfidf':
+        print('Running performance evaluation for tfidf_Vectorizer')
     elif sklearn_vectorizer == 'hash':
         print('Running performance evaluation for HashingVectorizer')
     else: 
@@ -77,49 +75,85 @@ def run_adversarial_attack(attack_type, sklearn_vectorizer, X, y, verbose):
 
     if attack_type == 'PGD':
         print('Running PGD-Attack...')
-        UCART.run_art_evasion_pgd(MOD.get_trained_model('LGR', X_train=X_train, y_train=y_train ), X_test, y_test, verbose)
+        UCART.run_art_evasion_pgd(MOD.get_trained_model('LGR', X_train=X_train, y_train=y_train ), 
+                                                        X_test, 
+                                                        y_test, 
+                                                        verbose)
     elif attack_type == 'DT-Attack':
         print('Running Decision-Tree Attack...')
-        UCART.run_art_decision_tree_attack(MOD.get_trained_model('DTC', X_train=X_train, y_train=y_train),X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test, verbose=verbose)
+        UCART.run_art_decision_tree_attack(MOD.get_trained_model('DTC', X_train=X_train, y_train=y_train),
+                                                                X_train=X_train, 
+                                                                y_train=y_train, 
+                                                                X_test=X_test, 
+                                                                y_test=y_test, 
+                                                                verbose=verbose)
     elif attack_type == 'SVM_Poisoning':
         print('Running SVM Poisoning Attack...')
-        UCART.run_art_poisoning_svm(MOD.get_trained_model('rbf_SVC', X_train=X_train, y_train=y_train), model_name='rbf_SVC', X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, verbose=True)
+        UCART.run_art_poisoning_svm(MOD.get_trained_model('linear_SVC', X_train=X_train, y_train=y_train), 
+                                                            model_name='linear_SVC', 
+                                                            X_train=X_train, 
+                                                            X_test=X_test, 
+                                                            y_train=y_train, 
+                                                            y_test=y_test, 
+                                                            verbose=verbose)
     else:
         print('Could not run this attack' )
         print('[ '+ attack_type + ' ] is not a supported adversarial attack')
-        exit()
+        exit() 
 
 # Run the full script
 def run_full_thesis_script():
     print('Starting script...')
 
-    from datetime import datetime
-    # Write the dataframe to a file for documentation and reprocessing purposes
-    now = datetime.now()
-    str_dataframe_size = str(dataframe_size)
-    # Create filepath YYYYMMDD_dataframesize.csv
-    file_path = now.strftime('%Y%m%d') + '_' + str_dataframe_size +'.csv'
+    # Select if the pre-generated csv-files from 2022-08-30 should be used or newly created 
+    files = [
+        #'new', 
+        '20220830'
+    ]
+
+    # Number of records that is randomly taken from the CSIC2010 dataset
+    dataframe_size = [
+        #1000,
+        #3000,
+        #5000,
+        10000
+    ]
+
+    str_dataframe_size = str(dataframe_size[0])
+
+    if files[0] == '20220830':
+        file_path = files[0] + '_' + str_dataframe_size + '.csv'
+        print('Opening file ', file_path)
+    elif files[0] == 'new':
+        from datetime import datetime
+        # Write the dataframe to a file for documentation and reprocessing purposes
+        now = datetime.now()
+        # Create filepath YYYYMMDD_dataframesize.csv
+        file_path = now.strftime('%Y%m%d') + '_' + str_dataframe_size +'.csv'
+    else: 
+        print('Could not open this filepath ')
+        exit()
 
     # If a subset of size datafram_size was already created reopen it for traceability purposes
     if not os.path.exists(file_path):
-        # Get CSIC2010 dataframe
-        df = DP.get_csic2010_dataframe(dataframe_size)
-        df.to_csv(file_path)
+       # Get CSIC2010 dataframe
+       df = DP.get_csic2010_dataframe(dataframe_size[0])
+       df.to_csv(file_path)
     else: 
-        df = DP.get_existing_csv(file_path)
+       df = DP.get_existing_csv(file_path)
 
     # Split into attacks-strings and labels
     X = DP.get_observed_data(df)
     y = DP.get_label(df)
 
     # Run performance evaluation for CountVectorizer
-    #run_performance_evaluation('count', X, y)
-    #run_performance_evaluation('tfid', X, y)
-    #run_performance_evaluation('hash', X, y)
+    run_performance_evaluation('count', X, y)
+    run_performance_evaluation('tfidf', X, y)
+    run_performance_evaluation('hash', X, y)
 
-    #run_adversarial_attack(attack_type='PGD', sklearn_vectorizer='tfid', X=X, y=y, verbose=False)
-    #run_adversarial_attack(attack_type='DT-Attack', sklearn_vectorizer='tfid', X=X, y=y, verbose=False)
-    run_adversarial_attack(attack_type='SVM_Poisoning', sklearn_vectorizer='tfid', X=X, y=y, verbose=True)
+    #run_adversarial_attack(attack_type='PGD', sklearn_vectorizer='tfidf', X=X, y=y, verbose=False)
+    #run_adversarial_attack(attack_type='DT-Attack', sklearn_vectorizer='tfidf', X=X, y=y, verbose=False)
+    #run_adversarial_attack(attack_type='SVM_Poisoning', sklearn_vectorizer='tfidf', X=X, y=y, verbose=True)
 
 def main():
     run_full_thesis_script()
